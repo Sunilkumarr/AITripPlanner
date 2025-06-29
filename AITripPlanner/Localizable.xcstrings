@@ -1,0 +1,190 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "• %@" : {
+
+    },
+    "✈️ %@" : {
+
+    },
+    "👥 Travelers: %lld" : {
+
+    },
+    "Dates: %@ → %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dates: %1$@ → %2$@"
+          }
+        }
+      }
+    },
+    "destination" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "destination"
+          }
+        }
+      }
+    },
+    "dismiss" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss"
+          }
+        }
+      }
+    },
+    "empty_trips_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New trips you create will appear here."
+          }
+        }
+      }
+    },
+    "end-date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End Date"
+          }
+        }
+      }
+    },
+    "From %@ to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "From %1$@ to %2$@"
+          }
+        }
+      }
+    },
+    "generate_trip_plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generate AI Trip Plan"
+          }
+        }
+      }
+    },
+    "generating_trip" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generating AI Trip…"
+          }
+        }
+      }
+    },
+    "interests" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interests"
+          }
+        }
+      }
+    },
+    "name" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trip Name"
+          }
+        }
+      }
+    },
+    "no_trips_label_text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Trips"
+          }
+        }
+      }
+    },
+    "plan_a_trip" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan a Trip"
+          }
+        }
+      }
+    },
+    "source" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Source"
+          }
+        }
+      }
+    },
+    "start_date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Date"
+          }
+        }
+      }
+    },
+    "travelers: %lld" : {
+
+    },
+    "trip_info" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trip Info"
+          }
+        }
+      }
+    },
+    "trip_itinerary" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trip Itinerary"
+          }
+        }
+      }
+    },
+    "upcoming_trips" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming Trips"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}
