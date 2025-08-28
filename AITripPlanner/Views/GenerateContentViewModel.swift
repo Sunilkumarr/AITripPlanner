@@ -10,20 +10,25 @@ import FirebaseAI
 
 @MainActor
 class GenerateContentViewModel: ObservableObject {
-    
-    @Published
-    var outputText = ""
-    
-    @Published
-    var errorMessage: String?
-    
-    @Published
-    var inProgress = false
-    
+    @Published var outputText = ""
+    @Published var errorMessage: String?
+    @Published var inProgress = false
     private var model: GenerativeModel?
     
     init(firebaseService: FirebaseAI) {
-        model = firebaseService.generativeModel(modelName: "gemini-2.0-flash-001")
+        model = firebaseService.generativeModel(modelName: "gemini-2.0-flash-001",
+                                                generationConfig: GenerationConfig(
+                                                    responseMIMEType: "application/json",
+                                                    responseSchema: Schema.array(
+                                                        items: Schema.object(properties: [
+                                                            "day": .integer(),
+                                                            "date": .string(),
+                                                            "theme": .string(),
+                                                            "notes": Schema.array(items: .string()),
+                                                            "activities": Schema.array(items: .string())
+                                                        ])
+                                                    )
+                                                ))
     }
     
     func generateContent(inputText: String) async {
@@ -40,7 +45,6 @@ class GenerateContentViewModel: ObservableObject {
             outputText = ""
             
             let outputContentStream = try await model.generateContent(inputText)
-            
             outputText = outputContentStream.text ?? "No output"
         } catch {
             errorMessage = error.localizedDescription

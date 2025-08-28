@@ -1,4 +1,4 @@
-//
+
 //  TripListView.swift
 //  AITripPlanner
 //
@@ -13,20 +13,23 @@ import Foundation
 
 struct TripListView: View {
     @State private var showTripForm = false
-    @State private var firebaseService: FirebaseAI = FirebaseAI.firebaseAI(backend: .googleAI())
-    @StateObject private var viewModel: TripViewModel
+    private var firebaseService: FirebaseAI
+    @StateObject var viewModel: TripViewModel
     let modelContext: ModelContext
     
     init(context: ModelContext) {
         self.modelContext = context
         _viewModel = StateObject(wrappedValue: TripViewModel(context: context))
+        firebaseService = FirebaseAI.firebaseAI(backend: .googleAI())
     }
     
     var body: some View {
         NavigationStack {
             List {
                 ForEach(viewModel.trips) { trip in
-                    NavigationLink(destination: TripDetailsView(trip: trip)) {
+                    NavigationLink(destination: TripDetailsView(context: self.modelContext,
+                                                                firebaseService: self.firebaseService,
+                                                                trip: trip)) {
                         VStack(alignment: .leading, spacing: 6) {
                             TripListItem(trip: trip)
                         }
@@ -56,15 +59,13 @@ struct TripListView: View {
                 }
             }
             .sheet(isPresented: $showTripForm) {
-                TripInputFormView(firebaseService: firebaseService, modelContext: modelContext)
+                TripInputFormView(firebaseService: firebaseService, modelContext: modelContext, isEditingMode: false)
             }
             .onChange(of: showTripForm) { isShowing in
                 if !isShowing {
                     viewModel.fetchTrips()
                 }
             }
-        }
-        .onAppear {
         }
     }
 }

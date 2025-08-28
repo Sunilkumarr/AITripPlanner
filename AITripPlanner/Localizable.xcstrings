@@ -40,6 +40,12 @@
         }
       }
     },
+    "Edit plan" : {
+
+    },
+    "Eidt a trip" : {
+
+    },
     "empty_trips_description" : {
       "extractionState" : "manual",
       "localizations" : {

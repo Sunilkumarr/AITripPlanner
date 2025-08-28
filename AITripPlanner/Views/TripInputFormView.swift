@@ -12,30 +12,52 @@ import FirebaseAI
 
 struct TripInputFormView: View {
     let firebaseService: FirebaseAI
-    @State private var name: String = ""
-    @State private var source: String = ""
-    @State private var destination: String = ""
-    @State private var startDate: Date = Date()
-    @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 4, to: Date())!
-    @State private var interests: Set<String> = []
-    @State private var numberOfTravelers: Int = 2
+    @State var name: String = ""
+    @State var source: String = ""
+    @State var destination: String = ""
+    @State var startDate: Date = Date()
+    @State var endDate: Date = Calendar.current.date(byAdding: .day, value: 4, to: Date())!
+    @State var interests: Set<String> = []
+    @State var numberOfTravelers: Int = 2
+    @State var tripId: String?
     @Environment(\.calendar) private var calendar
     @Environment(\.timeZone) private var timeZone
     @Environment(\.dismiss) private var dismiss
-    let modelContext: ModelContext
     @StateObject var viewModel: GenerateContentViewModel
     @StateObject var tripViewModel: TripViewModel
-    
     @State private var navigateToAI = false
     @State private var generatedPrompt = ""
-    @State private var trip: Trip? = nil
+    @State private var trip: SchemaV2.Trip? = nil
     @State private var isLoading = false
+    let modelContext: ModelContext
+    var isEditingMode = false
     
-    init(firebaseService: FirebaseAI, modelContext: ModelContext) {
+    init(firebaseService: FirebaseAI,
+         modelContext: ModelContext,
+         isEditingMode: Bool,
+         name: String = "",
+         source: String = "",
+         destination: String = "",
+         startDate: Date = Date(),
+         endDate: Date = Calendar.current.date(byAdding: .day, value: 4, to: Date())!,
+         interests: Set<String> = [],
+         numberOfTravelers: Int = 2,
+         tripId: String? = nil,
+    ) {
         self.firebaseService = firebaseService
         self.modelContext = modelContext
         _viewModel = StateObject(wrappedValue: GenerateContentViewModel(firebaseService: firebaseService))
         _tripViewModel = StateObject(wrappedValue: TripViewModel(context: modelContext))
+        self.isEditingMode = isEditingMode
+        _name = State(initialValue: name)
+        _source = State(initialValue: source)
+        _destination = State(initialValue: destination)
+        _startDate = State(initialValue: startDate)
+        _endDate = State(initialValue: endDate)
+        _interests = State(initialValue: interests)
+        _numberOfTravelers = State(initialValue: numberOfTravelers)
+        _tripId = State(initialValue: tripId)
+        
     }
     
     let allInterests = ["Sightseeing", "Food", "Art", "Adventure", "Relaxation"]
@@ -85,16 +107,21 @@ struct TripInputFormView: View {
                                       """
                             onGenerateContentTapped(userInput: generatedPrompt)
                         } label: {
-                            Label("generate_trip_plan", image: "AI_Icon").foregroundColor(.black)
+                            Label("generate_trip_plan", image: "AI_Icon")
                         }
                         .disabled(source.trimmingCharacters(in: .whitespaces).isEmpty || destination.trimmingCharacters(in: .whitespaces).isEmpty || interests.isEmpty || name.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
             }
-            .navigationTitle("plan_a_trip")
+            .navigationTitle(isEditingMode ? "Eidt a trip" : "plan_a_trip")
             .navigationDestination(isPresented: $navigateToAI) {
-                if let trip = trip {
-                    TripDetailsView(trip: trip)
+                if let trip = trip, !isEditingMode {
+                    TripDetailsView(context: modelContext, firebaseService: firebaseService, trip: trip)
+                } else {
+                    Color.clear
+                        .task {
+                            dismiss()
+                        }
                 }
             }.toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -115,23 +142,20 @@ struct TripInputFormView: View {
                 isLoading = false
                 return
             }
-            let cleaned = cleanedJSONString(viewModel.outputText)
-            guard let data = cleaned.data(using: .utf8) else { return }
+            guard let data = viewModel.outputText.data(using: .utf8) else { return }
             
             do {
-                let id = UUID().uuidString
+                let id = tripId ?? UUID().uuidString
                 if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-                    let itinerary = jsonArray.compactMap { item -> ItineraryItem? in
-                        guard let day = item["day"] as? Int,
-                              let activities = item["activities"] as? [String] else { return nil }
-                        var tripDescription = [String]()
-                        for activity in activities {
-                            tripDescription.append(activity)
-                        }
-                        let notes = item["notes"] as? String
-                        return ItineraryItem(day: day, notes: notes, activities: tripDescription)
+                    let itineraries: [SchemaV2.ItineraryItem] = jsonArray.map { dict in
+                        SchemaV2.ItineraryItem(
+                            day: dict["day"] as? Int ?? 0,
+                            notes: dict["notes"] as? String ?? "",
+                            activities: dict["activities"] as? [String] ?? []
+                        )
                     }
-                    let newtrip = Trip(
+                    
+                    let newtrip = SchemaV2.Trip(
                         id: id,
                         name: name,
                         source: source,
@@ -140,10 +164,15 @@ struct TripInputFormView: View {
                         endDate: endDate,
                         numberOfTravelers: numberOfTravelers,
                         createdAt: .now,
-                        itinerary: itinerary
+                        itinerary: itineraries,
+                        interests: interests
                     )
                     
-                    tripViewModel.addTrip(newTrip: newtrip)
+                    if isEditingMode {
+                        tripViewModel.updateTrip(trip: newtrip)
+                    } else {
+                        tripViewModel.addTrip(newTrip: newtrip)
+                    }
                     
                     await MainActor.run {
                         trip = newtrip
@@ -154,20 +183,6 @@ struct TripInputFormView: View {
                 print("Failed to parse or save: \(error.localizedDescription)")
             }
         }
-    }
-    
-    func cleanedJSONString(_ input: String) -> String {
-        var output = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        if output.hasPrefix("```json") {
-            output = output.replacingOccurrences(of: "```json", with: "")
-        }
-        if output.hasPrefix("```") {
-            output = String(output.dropFirst(3))
-        }
-        if output.hasSuffix("```") {
-            output = String(output.dropLast(3))
-        }
-        return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
 }

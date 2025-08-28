@@ -8,13 +8,22 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import FirebaseAI
 
 struct TripDetailsView: View {
-    let trip: Trip
-    
-    var sortedItinerary: [ItineraryItem] {
+    @State var showTripInputFormView = false
+    let trip: SchemaV2.Trip
+    let modelContext: ModelContext
+    var sortedItinerary: [SchemaV2.ItineraryItem] {
         trip.itinerary.sorted(by: { $0.day < $1.day })
     }
+    var firebaseService : FirebaseAI
+    init(context: ModelContext, firebaseService: FirebaseAI,  trip: SchemaV2.Trip) {
+        self.modelContext = context
+        self.firebaseService = firebaseService
+        self.trip = trip
+    }
+    
     var body: some View {
         List {
             Section {
@@ -42,9 +51,28 @@ struct TripDetailsView: View {
             }
         }
         .navigationTitle("trip_itinerary")
+        .toolbar {
+            Button {
+                showTripInputFormView = true
+            } label : {
+                Label("Edit plan", systemImage: "square.and.pencil")
+            }
+        }.sheet(isPresented: $showTripInputFormView) {
+            TripInputFormView(firebaseService: firebaseService,
+                              modelContext: modelContext,
+                              isEditingMode: true,
+                              name: trip.name,
+                              source: trip.source,
+                              destination: trip.destination,
+                              startDate: trip.startDate,
+                              endDate: trip.endDate,
+                              interests: trip.interests ?? [],
+                              numberOfTravelers: trip.numberOfTravelers,
+                              tripId: trip.id)
+        }
     }
     
-    private func dayHeader(for item: ItineraryItem) -> String {
+    private func dayHeader(for item: SchemaV2.ItineraryItem) -> String {
         return "Day \(item.day)"
     }
 }

@@ -21,7 +21,7 @@ struct TripListItem: View {
         return dict
     }()
     
-    var trip: Trip
+    var trip: SchemaV2.Trip
     var body: some View {
         HStack {
             let firstChar: Character =  trip.name.first ?? "U"

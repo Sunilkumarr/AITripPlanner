@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.xcuserstate
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+
+# Archives & Symbols
+*.xcarchive
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Core Data / SwiftData SQLite files
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Playgrounds
+timeline.xctimeline
+AITripPlanner/GoogleService-Info.plist
+GoogleService-Info.plist
